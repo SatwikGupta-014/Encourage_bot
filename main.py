@@ -5,6 +5,10 @@ import requests
 import json
 import random
 from ping import keep_alive  # Make sure keep_alive.py is present
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # ===========================
 # DATABASE SETUP
@@ -219,7 +223,7 @@ async def on_message(message):  # Triggered when bot receives a message
 # BOT STARTUP
 # ===========================
 keep_alive()
-TOKEN = os.getenv("DISCORD_TOKEN")  # Make sure .env uses DISCORD_TOKEN
+TOKEN = os.getenv("DISCORD_TOKEN")  # Changed from "TOKEN" to "DISCORD_TOKEN"
 if not TOKEN:
     print("Error: DISCORD_TOKEN environment variable not set!")
     exit(1)
