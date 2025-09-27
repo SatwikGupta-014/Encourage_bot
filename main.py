@@ -4,10 +4,9 @@ import os
 import requests
 import json
 import random
-from ping import keep_alive  # Make sure keep_alive.py is present
+from ping import keep_alive
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
 # ===========================
@@ -19,16 +18,13 @@ class EncouragementDB:
         self.collection = self.client[db_name][collection_name]
 
     def add(self, message: str):
-        """Add a new encouragement message to the database."""
         if message:
             self.collection.insert_one({"text": message})
 
     def all(self) -> list[str]:
-        """Retrieve all encouragement messages from the database."""
         return [doc["text"] for doc in self.collection.find({}, {"_id": 0, "text": 1})]
 
     def delete_by_index(self, index: int):
-        """Delete encouragement by its index in the database list."""
         docs = list(self.collection.find())
         if 0 <= index < len(docs):
             self.collection.delete_one({"_id": docs[index]["_id"]})
@@ -36,25 +32,23 @@ class EncouragementDB:
         return False
 
     def delete_by_text(self, text: str):
-        """Delete encouragement by matching its text."""
         result = self.collection.delete_one({"text": text})
         return result.deleted_count > 0
 
-# Initialize database
 db = EncouragementDB()
 
 # ===========================
 # DISCORD CLIENT SETUP
 # ===========================
 intents = discord.Intents.default()
-intents.message_content = True  # Required to read message content
-client = discord.Client(intents=intents)  # Connect to Discord
+intents.message_content = True
+client = discord.Client(intents=intents)
 
 # ===========================
 # GLOBAL VARIABLES
 # ===========================
-last_search_results = {}  # Store last search results for deletion
-responding = True  # Default bot responding setting
+last_search_results = {}
+responding = True
 
 sad_words = [
     "sad", "depressed", "unhappy", "angry", "miserable",
@@ -72,7 +66,6 @@ starter_encouragements = [
 # HELPER FUNCTIONS
 # ===========================
 def get_quote():
-    """Get a random inspirational quote from ZenQuotes API."""
     try:
         response = requests.get("https://zenquotes.io/api/random")
         json_data = response.json()
@@ -85,13 +78,13 @@ def get_quote():
 # DISCORD EVENT HANDLERS
 # ===========================
 @client.event
-async def on_ready():  # When the bot is ready
+async def on_ready():
     print(f'Logged in as {client.user}')
 
 @client.event
-async def on_message(message):  # Triggered when bot receives a message
+async def on_message(message):
     global responding
-    if message.author == client.user:  # Ignore messages from the bot itself
+    if message.author == client.user:
         return
 
     msg = message.content
@@ -145,11 +138,7 @@ async def on_message(message):  # Triggered when bot receives a message
         search_term = msg[7:].strip()
         if search_term:
             last_search_results.clear()
-
-            # Search starter encouragements (built-in, not deletable)
             starter_matches = [e for e in starter_encouragements if search_term.lower() in e.lower()]
-
-            # Search custom encouragements (deletable)
             custom_docs = db.all()
             custom_matches = []
             custom_indices = []
@@ -157,9 +146,7 @@ async def on_message(message):  # Triggered when bot receives a message
                 if search_term.lower() in e.lower():
                     custom_matches.append(e)
                     custom_indices.append(i)
-
             all_matches = starter_matches + custom_matches
-
             if all_matches:
                 formatted_results = ""
                 for i, match in enumerate(all_matches, 1):
@@ -170,7 +157,6 @@ async def on_message(message):  # Triggered when bot receives a message
                         custom_index = custom_indices[i - len(starter_matches) - 1]
                         last_search_results[i] = {'text': match, 'deletable': True, 'db_index': custom_index}
                         formatted_results += f"{i}. {match} (custom - deletable)\n"
-
                 await message.channel.send(
                     f"Encouragements containing '{search_term}':\n```{formatted_results}```Use $del <number> to delete custom encouragements."
                 )
@@ -223,7 +209,7 @@ async def on_message(message):  # Triggered when bot receives a message
 # BOT STARTUP
 # ===========================
 keep_alive()
-TOKEN = os.getenv("DISCORD_TOKEN")  # Changed from "TOKEN" to "DISCORD_TOKEN"
+TOKEN = os.getenv("DISCORD_TOKEN")
 if not TOKEN:
     print("Error: DISCORD_TOKEN environment variable not set!")
     exit(1)
