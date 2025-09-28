@@ -1,0 +1,35 @@
+# EncourageBot
+
+Discord bot sends encouragement, keeps server positive.
+
+## Features
+
+- Responds to sad messages with encouraging words  
+- Users add custom encouragement messages  
+- Sends random inspirational quotes on demand  
+- Stores encouragements in searchable database  
+- Manages encouragement messages easily  
+
+## Commands
+
+- `$hello` → Bot greets  
+- `$goodbye` → Bot says farewell  
+- `$inspire` → Bot sends inspirational quote  
+- `$new [message]` → Adds custom encouragement  
+- `$list` → Shows all custom encouragements  
+- `$search [term]` → Finds encouragements containing term  
+- `$del [index/text]` → Deletes chosen encouragement  
+- `$responding [true/false]` → Toggles auto-response  
+
+## Setup
+
+1. Clone repository  
+2. Create `.env` file with:
+DISCORD_TOKEN=your_discord_token
+MONGO_URL=your_mongodb_url  
+3. Install dependencies:  
+pip install -r requirements.txt
+4. python main.py
+
+Deployment
+Runs on Railway or similar platforms, stays online 24/7.
